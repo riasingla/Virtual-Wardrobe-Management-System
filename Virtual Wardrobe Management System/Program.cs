@@ -2,8 +2,11 @@ using DataAccessLayer.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using DataAccessLayer.Repositories;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using Virtual_Wardrobe_Management_System.Business_Logic.RepositoryInterfaces;
+using Virtual_Wardrobe_Management_System.Data_Layer.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,8 +62,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 });
 builder.Services.AddAuthorization();
-
-
+builder.Services.AddScoped<IClothingRepository, ClothingRepository>();
+builder.Services.AddScoped<IOutfitRepository, OutfitRepository>();
+builder.Services.AddScoped<ISearchFilterRepository, SearchFilterRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

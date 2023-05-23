@@ -18,42 +18,71 @@ namespace Virtual_Wardrobe_Management_System.Data_Layer.Repositories
 
         public Users GetByEmail(string email)
         {
-            var result = _context.Users.FirstOrDefault(u => u.Email == email);
-            if (result == null)
+            if (string.IsNullOrEmpty(email))
             {
                 throw new ArgumentException("Email cannot be blank.");
             }
+
+            var result = _context.Users.FirstOrDefault(u => u.Email == email);
+            if (result == null)
+            {
+                throw new ArgumentException("No user found with the specified email.");
+            }
+
             return result;
         }
 
         public Users AddUser(Users user)
         {
-            _context.Users.Add(user);
-            _context.SaveChanges();
-            return user;
+            try
+            {
+                _context.Users.Add(user);
+                _context.SaveChanges();
+                return user;
+            }
+            catch (Exception ex)
+            {
+                
+                throw new Exception("An error occurred while adding the user.", ex);
+            }
         }
+
         public void SignUp(Users user)
         {
-            var data = GetByEmail(user.Email);
-            if (data != null)
+            if (string.IsNullOrEmpty(user.Email))
             {
-                throw new Exception("Email Already Exits");
+                throw new ArgumentException("Email cannot be blank.");
             }
-            var hashPassword = HashPassword(user.Password);
-            var userEntity = new Users
-            {
-                UserId = user.UserId,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-                Password = hashPassword,
-                ConfirmPassword = user.ConfirmPassword,
-                Role = user.Role,
-                DateOfBirth = user.DateOfBirth
 
-            };
-            AddUser(userEntity);
+            try
+            {
+                if (_context.Users.Any(u => u.Email == user.Email))
+                {
+                    throw new ArgumentException("Email is already registered.");
+                }
+
+                var hashPassword = HashPassword(user.Password);
+
+                var userEntity = new Users
+                {
+                    UserId = user.UserId,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Email = user.Email,
+                    Password = hashPassword,
+                    ConfirmPassword = user.ConfirmPassword,
+                    Role = user.Role,
+                    DateOfBirth = user.DateOfBirth
+                };
+
+                AddUser(userEntity);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while saving the entity changes.", ex);
+            }
         }
+
         public Users Login(LoginRequest loginRequest)
         {
             var userEntity = GetByEmail(loginRequest.Email);

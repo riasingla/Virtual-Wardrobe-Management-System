@@ -55,7 +55,6 @@ namespace DataAccessLayer.Repositories
             {
                 throw new ArgumentException("Id not found");
             }
-            result.Name = item.Name;
             result.Type = item.Type;
             result.Colour = item.Colour;
             result.Size = item.Size;
