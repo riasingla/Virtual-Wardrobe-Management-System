@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Virtual_Wardrobe_Management_System.Business_Logic.RepositoryInterfaces;
 using Virtual_Wardrobe_Management_System.Data_Layer.Entities;
 
@@ -16,6 +17,7 @@ namespace Virtual_Wardrobe_Management_System.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles="Admin")]
         public ActionResult<IEnumerable<Outfit>> GetOutfits()
         {
             var outfits = _context.GetOutfits();
@@ -38,8 +40,8 @@ namespace Virtual_Wardrobe_Management_System.Controllers
         public ActionResult<Outfit> CreateOutfit(Outfit outfit)
         {
             _context.CreateOutfit(outfit);
-            return CreatedAtAction(nameof(GetOutfitById), new { id = outfit.OutfitId }, outfit);
-
+            return Ok();
+            //reatedAtAction(nameof(GetOutfitById), new { id = outfit.OutfitId }, outfit
         }
 
         [HttpPut("{id}")]

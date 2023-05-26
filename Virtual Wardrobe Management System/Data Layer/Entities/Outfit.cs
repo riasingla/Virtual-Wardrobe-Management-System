@@ -1,5 +1,6 @@
 ﻿using DataAccessLayer.Models;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Virtual_Wardrobe_Management_System.Data_Layer.Entities.Authentication___Authorization;
 
 namespace Virtual_Wardrobe_Management_System.Data_Layer.Entities
@@ -10,13 +11,12 @@ namespace Virtual_Wardrobe_Management_System.Data_Layer.Entities
         public int OutfitId { get; set; }
         [Required]
         public string OutfitName { get; set; } = null!;
-        [Required]
-        public virtual ICollection<ClothingItem> Items { get; set; } = null!;
         public string OutfitImageUrl { get; set; } = null!;
-        [Required]
         public DateTime CreatedAt { get; set; }
-        [Required]
         public DateTime UpdatedAt { get; set; }
-        public Users Users { get; internal set; } = null!;
+        //public int UserId { get; set; }
+       // [ForeignKey("UserId")]
+        //public Users Users { get; set; } = null!;
+         public virtual ICollection<ClothingItem> ClothingItems { get; set; } = null!;
     }
 }

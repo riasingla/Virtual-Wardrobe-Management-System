@@ -18,7 +18,6 @@ namespace DataAccessLayer.Data
 
         }
         public DbSet<ClothingItem> ClothingItems { get; set; } = null!;
-        public DbSet<SearchAndFilter> SearchandFilter { get; set; } = null!;
         public DbSet<Outfit> Outfits { get; set; } = null!;
         public DbSet<Users> Users { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -26,6 +25,18 @@ namespace DataAccessLayer.Data
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<ClothingItem>()
                         .HasKey(c => c.Id);
+
+
+        //    modelBuilder.Entity<ClothingItem>()
+        //    .HasMany(c => c.Outfits)
+        //    .WithMany(o => o.ClothingItems)
+        //.UsingEntity<Dictionary<string, object>>(
+        //    "ClothingItemOutfit",
+        //    j => j.HasOne<Outfit>().WithMany(),
+        //    j => j.HasOne<ClothingItem>().WithMany())
+        //.Property<int>("OutfitId");
+
+
         }
 
     }

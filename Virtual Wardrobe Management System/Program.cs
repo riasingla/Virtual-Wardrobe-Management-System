@@ -64,7 +64,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<IClothingRepository, ClothingRepository>();
 builder.Services.AddScoped<IOutfitRepository, OutfitRepository>();
-builder.Services.AddScoped<ISearchFilterRepository, SearchFilterRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 var app = builder.Build();
 

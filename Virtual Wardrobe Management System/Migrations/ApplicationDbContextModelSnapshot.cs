@@ -58,8 +58,11 @@ namespace VIRTUAL_WARDROBE_MANAGEMENT_SYSTEM.Migrations
 
             modelBuilder.Entity("Virtual_Wardrobe_Management_System.Data_Layer.Entities.Authentication___Authorization.Users", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("UserId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"), 1L, 1);
 
                     b.Property<string>("ConfirmPassword")
                         .IsRequired()
@@ -114,74 +117,21 @@ namespace VIRTUAL_WARDROBE_MANAGEMENT_SYSTEM.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UsersUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("OutfitId");
 
-                    b.HasIndex("UsersUserId");
-
                     b.ToTable("Outfits");
-                });
-
-            modelBuilder.Entity("Virtual_Wardrobe_Management_System.Data_Layer.Entities.SearchAndFilter", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Colour")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("OutfitIfd")
-                        .HasColumnType("int");
-
-                    b.Property<string>("OutfitName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Size")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SearchandFilter");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Models.ClothingItem", b =>
                 {
                     b.HasOne("Virtual_Wardrobe_Management_System.Data_Layer.Entities.Outfit", null)
-                        .WithMany("Items")
+                        .WithMany("ClothingItems")
                         .HasForeignKey("OutfitId");
                 });
 
             modelBuilder.Entity("Virtual_Wardrobe_Management_System.Data_Layer.Entities.Outfit", b =>
                 {
-                    b.HasOne("Virtual_Wardrobe_Management_System.Data_Layer.Entities.Authentication___Authorization.Users", "Users")
-                        .WithMany()
-                        .HasForeignKey("UsersUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Users");
-                });
-
-            modelBuilder.Entity("Virtual_Wardrobe_Management_System.Data_Layer.Entities.Outfit", b =>
-                {
-                    b.Navigation("Items");
+                    b.Navigation("ClothingItems");
                 });
 #pragma warning restore 612, 618
         }
