@@ -1,12 +1,6 @@
 ﻿using DataAccessLayer.Data;
 using Microsoft.EntityFrameworkCore;
 using Moq;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using Virtual_Wardrobe_Management_System.Business_Logic.RepositoryInterfaces;
 using Virtual_Wardrobe_Management_System.Data_Layer.Entities.Authentication___Authorization;
 
@@ -15,13 +9,17 @@ namespace Virtual_Wardrobe_Management_System.Data_Layer.Repositories.Tests
     public class UserRepositoryTests
     {
         private Mock<ApplicationDbContext> _contextMock;
-        private UserRepository _userRepository;
+        private IUserRepository _userRepository;
 
         [SetUp]
         public void Setup()
         {
-            _contextMock = new Mock<ApplicationDbContext>();
-            _userRepository = new UserRepository(_contextMock.Object);
+            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseInMemoryDatabase(databaseName: "TestDatabase")
+                .Options;
+
+            var dbContext = new ApplicationDbContext(options);
+            _userRepository = new UserRepository(dbContext);
         }
 
         [Test]
@@ -29,16 +27,24 @@ namespace Virtual_Wardrobe_Management_System.Data_Layer.Repositories.Tests
         {
             // Arrange
             string email = "test@example.com";
-            var users = GetTestUsers();
-            var usersDbSetMock = GetMockDbSet(users);
-            _contextMock.Setup(c => c.Users).Returns(usersDbSetMock.Object);
+            var user = new Users
+            {
+                UserId = 1001,
+                FirstName = "John",
+                LastName = "Doe",
+                Email = email,
+                Password = "password",
+                ConfirmPassword = "password",
+                Role = (RoleType)1
+            };
+            _userRepository.AddUser(user);
 
             // Act
             var result = _userRepository.GetByEmail(email);
 
             // Assert
             Assert.NotNull(result);
-            Assert.AreEqual(email, result.Email);
+            Assert.That(result.Email, Is.EqualTo(email));
         }
 
         [Test]
@@ -56,9 +62,6 @@ namespace Virtual_Wardrobe_Management_System.Data_Layer.Repositories.Tests
         {
             // Arrange
             string email = "nonexistent@example.com";
-            var users = GetTestUsers();
-            var usersDbSetMock = GetMockDbSet(users);
-            _contextMock.Setup(c => c.Users).Returns(usersDbSetMock.Object);
 
             // Act & Assert
             Assert.Throws<ArgumentException>(() => _userRepository.GetByEmail(email));
@@ -77,22 +80,17 @@ namespace Virtual_Wardrobe_Management_System.Data_Layer.Repositories.Tests
                 Password = "password",
                 ConfirmPassword = "password",
                 Role = (RoleType)1,
-                DateOfBirth = DateTime.Now
             };
-
-            var users = new List<Users>();
-            var usersDbSetMock = GetMockDbSet(users);
-            _contextMock.Setup(c => c.Users).Returns(usersDbSetMock.Object);
 
             // Act
             var result = _userRepository.AddUser(user);
 
             // Assert
             Assert.NotNull(result);
-            Assert.AreEqual(user.UserId, result.UserId);
-            Assert.AreEqual(user.FirstName, result.FirstName);
-            Assert.AreEqual(user.LastName, result.LastName);
-            Assert.AreEqual(user.Email, result.Email);
+            Assert.That(result.UserId, Is.EqualTo(user.UserId));
+            Assert.That(result.FirstName, Is.EqualTo(user.FirstName));
+            Assert.That(result.LastName, Is.EqualTo(user.LastName));
+            Assert.That(result.Email, Is.EqualTo(user.Email));
         }
 
         [Test]
@@ -101,61 +99,194 @@ namespace Virtual_Wardrobe_Management_System.Data_Layer.Repositories.Tests
             // Arrange
             var user = new Users
             {
-                UserId = 1,
+                UserId = 1003,
                 FirstName = "John",
                 LastName = "Doe",
-                Email = "test@example.com",
+                Email = "test1@example.com",
                 Password = "password",
                 ConfirmPassword = "password",
-                Role = (RoleType)1,
-                DateOfBirth = DateTime.Now
+                Role = (RoleType)1
             };
-
-            var users = new List<Users>();
-            var usersDbSetMock = GetMockDbSet(users);
-            _contextMock.Setup(c => c.Users).Returns(usersDbSetMock.Object);
-
-            _contextMock.Setup(c => c.SaveChanges()).Throws<Exception>();
 
             // Act & Assert
             Assert.Throws<Exception>(() => _userRepository.AddUser(user));
         }
 
-        private List<Users> GetTestUsers()
+        [Test]
+        
+        public void SignUp_ValidUser_ReturnsUser()
         {
-            return new List<Users>
+            // Arrange
+            var user = new Users
             {
-                new Users
-                {
-                    UserId = 1,
-                    FirstName = "John",
-                    LastName = "Doe",
-                    Email = "test@example.com",
-                    Password = "password",
-                    ConfirmPassword = "password",
-                    Role = (RoleType)1,
-                    DateOfBirth = DateTime.Now
-                }
+                UserId = 1111,
+                FirstName = "Johnny",
+                LastName = "Doe",
+                Email = "test3@example.com",
+                Password = "password",
+                ConfirmPassword = "password",
+                Role = (RoleType)1
             };
+
+            // Act & Assert
+            Assert.DoesNotThrow(() => _userRepository.SignUp(user));
         }
 
-        private Mock<DbSet<T>> GetMockDbSet<T>(List<T> list) where T : class
-        {
-            var queryable = list.AsQueryable();
-            var dbSetMock = new Mock<DbSet<T>>();
-            dbSetMock.As<IQueryable<T>>().Setup(m => m.Provider).Returns(queryable.Provider);
-            dbSetMock.As<IQueryable<T>>().Setup(m => m.Expression).Returns(queryable.Expression);
-            dbSetMock.As<IQueryable<T>>().Setup(m => m.ElementType).Returns(queryable.ElementType);
-            dbSetMock.As<IQueryable<T>>().Setup(m => m.GetEnumerator()).Returns(() => queryable.GetEnumerator());
 
-            return dbSetMock;
+        [Test]
+        public void SignUp_EmptyEmail_ThrowsArgumentException()
+        {
+            // Arrange
+            var user = new Users
+            {
+                UserId = 1,
+                FirstName = "John",
+                LastName = "Doe",
+                Email = string.Empty,
+                Password = "password",
+                ConfirmPassword = "password",
+                Role = (RoleType)1
+            };
+
+            // Act & Assert
+            Assert.Throws<ArgumentException>(() => _userRepository.SignUp(user));
         }
 
-        public string HashPassword(string password)
+        [Test]
+        public void SignUp_EmailAlreadyRegistered_ThrowsArgumentException()
         {
-            using var sha256 = SHA256.Create();
-            var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
+            // Arrange
+            string email = "test@example.com";
+            var existingUser = new Users
+            {
+                UserId = 1,
+                FirstName = "John",
+                LastName = "Doe",
+                Email = email,
+                Password = "password",
+                ConfirmPassword = "password",
+                Role = (RoleType)1
+            };
+            _userRepository.AddUser(existingUser);
+
+            var newUser = new Users
+            {
+                UserId = 2,
+                FirstName = "Jane",
+                LastName = "Smith",
+                Email = email,
+                Password = "password",
+                ConfirmPassword = "password",
+                Role = (RoleType)2
+            };
+
+            // Act & Assert
+            Assert.Throws<ArgumentException>(() => _userRepository.SignUp(newUser));
+        }
+
+        [Test]
+        public void Login_ValidCredentials_ReturnsUser()
+        {
+            // Arrange
+            string email = "test@example.com";
+            string password = "password";
+            var user = new Users
+            {
+                UserId = 1,
+                FirstName = "John",
+                LastName = "Doe",
+                Email = email,
+                Password = _userRepository.HashPassword(password),
+                ConfirmPassword = _userRepository.HashPassword(password),
+                Role = (RoleType)1
+            };
+            _userRepository.AddUser(user);
+
+            var loginRequest = new LoginRequest
+            {
+                Email = email,
+                Password = password
+            };
+
+            // Act
+            var result = _userRepository.Login(loginRequest);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.That( result.UserId, Is.EqualTo(user.UserId));
+            Assert.That(result.FirstName, Is.EqualTo(user.FirstName));
+            Assert.That(result.LastName, Is.EqualTo(user.LastName));
+            Assert.That(result.Email, Is.EqualTo(user.Email));
+        }
+
+        [Test]
+        public void Login_InvalidEmail_ThrowsException()
+        {
+            // Arrange
+            string email = "test@example.com";
+            string password = "password";
+            var user = new Users
+            {
+                UserId = 1002,
+                FirstName = "John",
+                LastName = "Doe",
+                Email = email,
+                Password = _userRepository.HashPassword(password),
+                ConfirmPassword = _userRepository.HashPassword(password),
+                Role = (RoleType)1
+            };
+            _userRepository.AddUser(user);
+
+            var loginRequest = new LoginRequest
+            {
+                Email = "nonexistent@example.com",
+                Password = password
+            };
+
+            // Act & Assert
+            Assert.Throws<ArgumentException>(() => _userRepository.Login(loginRequest));
+        }
+
+        [Test]
+        public void Login_InvalidPassword_ThrowsException()
+        {
+            // Arrange
+            string email = "test@example.com";
+            string password = "password";
+            var user = new Users
+            {
+                UserId = 1002,
+                FirstName = "John",
+                LastName = "Doe",
+                Email = email,
+                Password = _userRepository.HashPassword(password),
+                ConfirmPassword = _userRepository.HashPassword(password),
+                Role = (RoleType)1
+            };
+            _userRepository.AddUser(user);
+
+            var loginRequest = new LoginRequest
+            {
+                Email = email,
+                Password = "invalidpassword"
+            };
+
+            // Act & Assert
+            Assert.Throws<Exception>(() => _userRepository.Login(loginRequest));
+        }
+
+        [Test]
+        public void HashPassword_ValidPassword_ReturnsHashedPassword()
+        {
+            // Arrange
+            string password = "password";
+            var expectedHash = _userRepository.HashPassword(password);
+
+            // Act
+            var result = _userRepository.HashPassword(password);
+
+            // Assert
+            Assert.That( result, Is.EqualTo(expectedHash));
         }
     }
 }

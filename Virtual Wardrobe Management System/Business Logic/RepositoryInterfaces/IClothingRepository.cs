@@ -13,6 +13,7 @@ namespace DataAccessLayer.Repositories
         void DeleteClothingItem(int Id);
         IEnumerable<ClothingItem> GetAllClothingItems();
         ClothingItem GetById(int Id);
+        IEnumerable<ClothingItem> GetItemsByUserId(int userId);
         void UpdateClothingItem(int id, ClothingItem item);
 
     }

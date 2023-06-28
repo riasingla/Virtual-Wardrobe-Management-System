@@ -7,6 +7,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using Virtual_Wardrobe_Management_System.Business_Logic.RepositoryInterfaces;
 using Virtual_Wardrobe_Management_System.Data_Layer.Repositories;
+using Microsoft.AspNetCore.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,14 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlSer
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalhost",
+    builder => builder.WithOrigins("http://localhost:3000")
+    .AllowAnyMethod()
+    .AllowAnyHeader());
+});
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Virtual Wardrobe Management System API", Version = "v1" });
@@ -65,7 +74,10 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<IClothingRepository, ClothingRepository>();
 builder.Services.AddScoped<IOutfitRepository, OutfitRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+builder.Services.AddHttpContextAccessor();
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -74,8 +86,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
 
+app.UseHttpsRedirection();
+app.UseCors();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

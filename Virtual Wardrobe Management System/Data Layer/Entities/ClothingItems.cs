@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Virtual_Wardrobe_Management_System.Data_Layer.Entities;
+using Virtual_Wardrobe_Management_System.Data_Layer.Entities.Authentication___Authorization;
 
 namespace DataAccessLayer.Models
 {
@@ -17,6 +18,9 @@ namespace DataAccessLayer.Models
         public string Colour { get; set; } = null!;
         public string Size { get; set; } = null!;
         public string ImageUrl { get; set; } = null!;
+        public int UserId { get; set; } 
+      
+
         
     }
 }

@@ -11,12 +11,11 @@ namespace Virtual_Wardrobe_Management_System.Data_Layer.Entities
         public int OutfitId { get; set; }
         [Required]
         public string OutfitName { get; set; } = null!;
-        public string OutfitImageUrl { get; set; } = null!;
+        public string Item1 { get; set; } = null!;
+        public string Item2 { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-        //public int UserId { get; set; }
-       // [ForeignKey("UserId")]
-        //public Users Users { get; set; } = null!;
-         public virtual ICollection<ClothingItem> ClothingItems { get; set; } = null!;
+        public int UserId { get; set; }
+        public virtual ICollection<ClothingItem> ClothingItems { get; set; } = new List<ClothingItem>();
     }
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace VIRTUAL_WARDROBE_MANAGEMENT_SYSTEM.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230526135856_vwms")]
-    partial class vwms
+    [Migration("20230607131010_adduserIdtoOutfit.cs")]
+    partial class adduserIdtoOutfitcs
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -70,9 +70,6 @@ namespace VIRTUAL_WARDROBE_MANAGEMENT_SYSTEM.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("DateOfBirth")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -108,7 +105,11 @@ namespace VIRTUAL_WARDROBE_MANAGEMENT_SYSTEM.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("OutfitImageUrl")
+                    b.Property<string>("Item1")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Item2")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -118,6 +119,9 @@ namespace VIRTUAL_WARDROBE_MANAGEMENT_SYSTEM.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("OutfitId");
 
